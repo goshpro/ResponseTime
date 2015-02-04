@@ -25,7 +25,7 @@ private:
 		) const { 
 		return (m_currentHour + hour) % ALL_HISTORY_LENGTH; //двигаюсь по массиву циклически, всегда оставляя m_currentHour в пределах допустимых значений второго индекса m_aCohortResults
 	}
-	Timestamp lastTimestamp; //Время, которое передавали в последний раз, когда меняли m_currentHour. Нужно для контроля того, инфа о каком именно часе передаётся.
+	Timestamp m_lastTimestamp; //Время, которое передавали в последний раз, когда меняли m_currentHour. Нужно для контроля того, инфа о каком именно часе передаётся.
 	//замена целочисленному делению на 9 (хочется, чтобы тут получалось немного меньше, чем на самом деле)
 	NumberOfTickets fakeDiv9 (
 		NumberOfTickets numberOfTickets //делимое
@@ -52,12 +52,12 @@ public:
 	bool setCohortResults (
 		Timestamp currentTimestamp, //текущее время
 //		size_t cohortIndex, //номер когорты (0, 1 или 2)
-		NumberOfTickets * aThirdCohortResults, //массив с результатами третьей когорты
-		NumberOfTickets * aThirteenthCohortResults, //массив с результатами тринадцатой когорты
-		NumberOfTickets * aTwentyThirdCohortResults, //массив с результатами двадцать третьей когорты
+		const NumberOfTickets * aThirdCohortResults, //массив с результатами третьей когорты
+		const NumberOfTickets * aThirteenthCohortResults, //массив с результатами тринадцатой когорты
+		const NumberOfTickets * aTwentyThirdCohortResults, //массив с результатами двадцать третьей когорты
 		size_t aCohortResultsLength //длина переданных массивов (разумеется, должна быть одинаковой)
 		) {
-		lastTimestamp = currentTimestamp; //сохраняем время
+		m_lastTimestamp = currentTimestamp; //сохраняем время
 		for(size_t i = 0; i < aCohortResultsLength; ++i) { //пробегаем переданные массивы целиком
 			size_t hourIndex = findHourIndex (i);
 			//записываем каждой когорте свой результат
@@ -113,6 +113,28 @@ public:
 			}
 		}
 		m_responseTime = hour;
+	}
+	//добавляем инфу о прошедшем часе
+	bool switchHour (
+		Timestamp currentTimestamp, //текущее время
+		NumberOfTickets thirdCohortResult, //результат третьей когорты
+		NumberOfTickets thirteenthCohortResult, //результат тринадцатой когорты
+		NumberOfTickets twentyThirdCohortResult //результат двадцать третьей когорты
+		) {
+		if(m_lastTimestamp / (86400 / HOURS_IN_DAY) + 1 != currentTimestamp / (86400 / HOURS_IN_DAY)) {
+			return false;
+		}
+		m_lastTimestamp = currentTimestamp; //сохраняем время
+		size_t hourIndex = findHourIndex (0);
+		//записываем каждой когорте свой результат
+		m_aCohortResults[0][hourIndex] = thirdCohortResult;
+		m_aCohortResults[1][hourIndex] = thirteenthCohortResult;
+		m_aCohortResults[2][hourIndex] = twentyThirdCohortResult;
+		for(unsigned int hour = HOURS_IN_DAY; hour <= PROGNOSIS_DEPTH; hour += HOURS_IN_DAY) {
+			calculatePrognosis (hour);
+		}
+		m_currentHour = findHourIndex (1);
+		return true;
 	}
 	//возвращаем сохранённое время ожидания
 	unsigned int getResponseTime () const {
