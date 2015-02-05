@@ -1,7 +1,5 @@
 #include "ResponseTimeData.h"
 
-#include <ctime>
-
 int main () {
 	srand (static_cast<unsigned int>(time (nullptr)));
 	ResponseTimeData data;

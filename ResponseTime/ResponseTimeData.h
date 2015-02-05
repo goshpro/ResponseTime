@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ctime>
 
 typedef unsigned int NumberOfTickets;
 typedef time_t Timestamp; //Предполагаю, что будет передаваться unix timestamp (который от 1 января 1970 года).
