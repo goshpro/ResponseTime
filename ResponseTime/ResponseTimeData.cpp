@@ -147,6 +147,7 @@ size_t Data::findPastHourIndex(
 	if (time.tm_mday < FIRST_DAY_OF_MONTH[cohortIndex]) {
 		--time.tm_mon;
 	}
+	pastTime = time;
 	pastTime.tm_mon -= months;
 	return mktime(&time) - mktime(&pastTime);
 }
