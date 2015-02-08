@@ -23,10 +23,16 @@ void Data::calculatePrognosis (
 	int hour //номер часа, для которого буду изменять значения количества разобранных вопросов (сразу для всех когорт)
 	) {
 	for(size_t cohortIndex = 0; cohortIndex < NUMBER_OF_COHORTS; ++cohortIndex) {
-		m_aCohortResults[cohortIndex][findHourIndex (hour)] = fakeDiv (																														//считаю среднее арифметическое
-			m_aCohortResults[cohortIndex][findHourIndex (hour - 1 * DAY)] + m_aCohortResults[cohortIndex][findHourIndex (hour - 2 * DAY)] + m_aCohortResults[cohortIndex][findHourIndex (hour - 3 * DAY)] +		//за последние три дня,
-			m_aCohortResults[cohortIndex][findHourIndex (hour - 1 * WEEK)] + m_aCohortResults[cohortIndex][findHourIndex (hour - 2 * WEEK)] + m_aCohortResults[cohortIndex][findHourIndex (hour - 3 * WEEK)] +	//три недели
-			m_aCohortResults[cohortIndex][findHourIndex (hour - 1 * MONTH)] + m_aCohortResults[cohortIndex][findHourIndex (hour - 2 * MONTH)] + m_aCohortResults[cohortIndex][findHourIndex (hour - 3 * MONTH)]	//и три месяца
+		m_aCohortResults[cohortIndex][findHourIndex (hour)] = fakeDiv (					//считаю среднее арифметическое
+			m_aCohortResults[cohortIndex][findHourIndex (hour - 1 * DAY)] +
+			m_aCohortResults[cohortIndex][findHourIndex (hour - 2 * DAY)] +				//за последние три дня,
+			m_aCohortResults[cohortIndex][findHourIndex (hour - 3 * DAY)] +
+			m_aCohortResults[cohortIndex][findHourIndex (hour - 1 * WEEK)] +
+			m_aCohortResults[cohortIndex][findHourIndex (hour - 2 * WEEK)] +			//три недели
+			m_aCohortResults[cohortIndex][findHourIndex (hour - 3 * WEEK)] +
+			m_aCohortResults[cohortIndex][findPastHourIndex(hour, 1, cohortIndex)] +
+			m_aCohortResults[cohortIndex][findPastHourIndex(hour, 2, cohortIndex)] +	//и три месяца
+			m_aCohortResults[cohortIndex][findPastHourIndex(hour, 3, cohortIndex)]
 			);
 	}
 }
@@ -149,5 +155,5 @@ size_t Data::findPastHourIndex(
 	}
 	pastTime = time;
 	pastTime.tm_mon -= months;
-	return mktime(&time) - mktime(&pastTime);
+	return findHourIndex((mktime(&pastTime) - mktime(&time)) / SECONDS_IN_HOUR);
 }
