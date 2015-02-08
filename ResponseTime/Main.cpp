@@ -9,7 +9,7 @@ int main () {
 	std::cout << "Test\n" << 0123 << "\n\n";
 	ResponseTime::NumberOfTickets results[ResponseTime::NUMBER_OF_COHORTS][ResponseTime::MIN_HISTORY_LENGTH];
 	for(size_t hour = 0; hour < ResponseTime::MIN_HISTORY_LENGTH; ++hour) {
-		for(unsigned int cohortIndex = 0; cohortIndex < ResponseTime::NUMBER_OF_COHORTS; ++cohortIndex) {
+		for(size_t cohortIndex = 0; cohortIndex < ResponseTime::NUMBER_OF_COHORTS; ++cohortIndex) {
 			results[cohortIndex][hour] = 100 * (cohortIndex + 1);
 		}
 	}

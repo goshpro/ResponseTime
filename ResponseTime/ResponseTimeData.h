@@ -4,7 +4,7 @@ namespace ResponseTime {
 	typedef unsigned int NumberOfTickets;
 	typedef time_t Timestamp; //Предполагаю, что будет передаваться unix timestamp (который от 1 января 1970 года).
 
-	unsigned int const NUMBER_OF_COHORTS = 3; //Количество когорт.
+	size_t const NUMBER_OF_COHORTS = 3; //Количество когорт.
 	unsigned int const FIRST_DAY_OF_MONTH[3] = { 1, 11, 20 }; //Когда у какой когорты начинается расчётный месяц.
 
 	unsigned int const HOURS_IN_DAY = 24; //Количество промежутков, на которые разбиваются сутки. Длина промежутка соответствует точности, с которой будет вычисляться время ожидания (не представляю, зачем бы это был не 1 час, так что далее под «часом» везде будет подразумеваться именно это значение). Если сюда запихнуть число, не являющееся делителем 86400, то алгоритм будет работать хреново.
@@ -21,22 +21,31 @@ namespace ResponseTime {
 
 	unsigned int const END_OF_MONTH_LENGTH = 13 * HOURS_IN_DAY / 2; //Длина в часах «конца месяца» — периода, когда Агенты начинают херачить.
 
+	unsigned int const BAD_RESPONSE_TIME = 666; //Время ответа, которое устанавливается, когда что-то пошло не так.
+
 	class Data {
 	public:
-		Data (); //конструктор
-		void setCohortsResults (NumberOfTickets const (&aCohortResults)[NUMBER_OF_COHORTS][MIN_HISTORY_LENGTH], Timestamp currentTimestamp); //Записываем результаты всех когорт за последние три месяца.
-		bool switchHour (NumberOfTickets const (&aCohortHourResults)[NUMBER_OF_COHORTS], Timestamp currentTimestamp); //добавляем инфу о прошедшем часе
-		void print (int firstHour, int lastHour) const; //выводим на экран кусок истории по всем когортам (тестовый метод)
-		void calculateResponseTime (NumberOfTickets ticketsQueue, Timestamp currentTimestamp); //оцениваем время ожидания, эмулируя разбор очереди вопросов, и записываем его в m_responseTime
-		unsigned int getResponseTime () const; //возвращаем сохранённое время ожидания
+		//конструктор
+		Data ();
+		//Записываем результаты всех когорт за последние три месяца.
+		void setCohortsResults (NumberOfTickets const (&aCohortResults)[NUMBER_OF_COHORTS][MIN_HISTORY_LENGTH], Timestamp currentTimestamp);
+		//добавляем инфу о прошедшем часе
+		bool switchHour (NumberOfTickets const (&aCohortHourResults)[NUMBER_OF_COHORTS], Timestamp currentTimestamp);
+		//выводим на экран кусок истории по всем когортам (тестовый метод)
+		void print (int firstHour, int lastHour) const;
+		//Оцениваем время ожидания. Возвращаем false, если переданное время не соответствует текущему часу в сохранённой истории.
+		bool calculateResponseTime (NumberOfTickets ticketsQueue, Timestamp currentTimestamp);
+		//возвращаем сохранённое время ожидания
+		unsigned int getResponseTime () const;
 	private:
 		NumberOfTickets m_aCohortResults[NUMBER_OF_COHORTS][ALL_HISTORY_LENGTH]; //База данных количества разобранных вопросов за час по когортам (0 — третья; 1 — тринадцатая; 2 — двадцать третья). Блуждание по массиву будет циклическим, так что свежие данные просто будут замещать старые.
 		Timestamp m_lastTimestamp; //Время, которое передавали в последний раз, когда меняли m_currentHour. Нужно для контроля того, инфа о каком именно часе передаётся.
+		unsigned int m_responseTime; //последнее рассчитанное время ожидания в часах
 		size_t m_currentHour; //Второй индекс элемента в CohortResults, соответствующего текущему часу. К любому инкрементированию/декрементированию этого числа необходимо дописывать «% HISTORY_LENGTH». Для этого метод ниже.
 
 		size_t findHourIndex (int hour) const; //нахожу час, который будет через differense часов
-		NumberOfTickets fakeDiv9 (NumberOfTickets numberOfTickets); //замена целочисленному делению на 9 (хочется, чтобы тут получалось немного меньше, чем на самом деле)
+		NumberOfTickets fakeDiv (NumberOfTickets numberOfTickets); //замена целочисленному делению на 3 * COHORT_NUMBER (хочется, чтобы тут получалось немного меньше, чем на самом деле)
 		void calculatePrognosis (int hour); //вычисляю ожидаемое количество ответов для конкретного часа
-		unsigned int m_responseTime; //последнее рассчитанное время ожидания в часах
+		size_t findPastHourIndex (int hour, int months, size_t cohortIndex) const; //нахожу час, который был months месяцев назад
 	};
 }
