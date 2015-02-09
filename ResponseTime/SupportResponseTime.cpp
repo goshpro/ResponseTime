@@ -136,11 +136,10 @@ size_t Data::findPastHourIndex(
 	}
 	pastTime = time;
 	pastTime.tm_mon -= months;
-	if (pastTime.tm_mon < 0) {
+	while (pastTime.tm_mon < 0) {
 		pastTime.tm_mon += 12;
 		--pastTime.tm_year;
 	}
-	auto test = (mktime(&pastTime) - mktime(&time)) / SECONDS_IN_HOUR / HOURS_IN_DAY;
 	return findHourIndex((mktime(&pastTime) - mktime(&time)) / SECONDS_IN_HOUR);
 }
 
