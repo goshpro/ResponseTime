@@ -18,12 +18,12 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResponseTimeData.cpp">
+    <ClCompile Include="SupportResponseTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ResponseTimeData.h">
+    <ClInclude Include="SupportResponseTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
