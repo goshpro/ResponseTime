@@ -129,9 +129,18 @@ size_t Data::findPastHourIndex(
 	localtime_s(&time, &timestamp);
 	if (static_cast<unsigned int>(time.tm_mday) < FIRST_DAY_OF_MONTH[cohortIndex]) {
 		--time.tm_mon;
+		if (time.tm_mon < 0) {
+			time.tm_mon += 12;
+			--time.tm_year;
+		}
 	}
 	pastTime = time;
 	pastTime.tm_mon -= months;
+	if (pastTime.tm_mon < 0) {
+		pastTime.tm_mon += 12;
+		--pastTime.tm_year;
+	}
+	auto test = (mktime(&pastTime) - mktime(&time)) / SECONDS_IN_HOUR / HOURS_IN_DAY;
 	return findHourIndex((mktime(&pastTime) - mktime(&time)) / SECONDS_IN_HOUR);
 }
 

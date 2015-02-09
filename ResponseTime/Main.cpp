@@ -5,7 +5,7 @@
 int main () {
 	srand (static_cast<unsigned int>(time (nullptr)));
 	SupportResponseTime::Data data;
-	time_t currentTimestamp = 123456;
+	time_t currentTimestamp = 123456789;
 	std::cout << "Test\n" << 0123 << "\n\n";
 	SupportResponseTime::NumberOfTickets results[SupportResponseTime::NUMBER_OF_COHORTS][SupportResponseTime::MIN_HISTORY_LENGTH];
 	for(size_t hour = 0; hour < SupportResponseTime::MIN_HISTORY_LENGTH; ++hour) {
